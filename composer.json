@@ -1,11 +1,11 @@
 {
-    "name": "juandelatorre/bienes-raices-poo_php_inicio",
-    "description": "Creando un proyecto con POO",
+    "name": "nathandebarros/bienesraices-mvc",
+    "description": "Proyecto inmobiliario MVC redisenado por Nathan de Barros",
     "type": "project",
+    "license": "MIT",
     "authors": [
         {
-            "name": "Juan Pablo De la torre Valdez",
-            "email": "ptorre@creativaweb.mx"
+            "name": "Nathan de Barros"
         }
     ],
     "require": {

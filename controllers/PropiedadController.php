@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Controllers;
 
@@ -8,12 +8,43 @@ use Model\Vendedor;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class PropiedadController  {
-    
+
+    private static function generarNombreImagen(array $archivo): string {
+        $extension = pathinfo($archivo['name'] ?? '', PATHINFO_EXTENSION);
+        $extension = strtolower($extension ?: 'jpg');
+        $extensionesPermitidas = ['jpg', 'jpeg', 'png'];
+
+        if(!in_array($extension, $extensionesPermitidas)) {
+            $extension = 'jpg';
+        }
+
+        return md5( uniqid( rand(), true ) ) . "." . $extension;
+    }
+
+    private static function guardarImagenSubida(array $archivo, string $nombreImagen): void {
+        if(!is_dir(CARPETA_IMAGENES)) {
+            mkdir(CARPETA_IMAGENES, 0755, true);
+        }
+
+        $tmpName = $archivo['tmp_name'] ?? '';
+        if(!$tmpName) {
+            return;
+        }
+
+        $destino = CARPETA_IMAGENES . $nombreImagen;
+
+        if(extension_loaded('gd')) {
+            Image::make($tmpName)->fit(800,600)->save($destino);
+            return;
+        }
+
+        move_uploaded_file($tmpName, $destino);
+    }
+
     public static function index(Router $router) {
         $propiedades = Propiedad::all();
         $vendedores = Vendedor::all();
 
-        // Muestra mensaje condicional
         $resultado = $_GET['resultado'] ?? null;
 
         $router->render('propiedades/index', [
@@ -29,36 +60,30 @@ class PropiedadController  {
         $propiedad = new Propiedad;
         $vendedores = Vendedor::all();
 
-        // Ejecutar el código después de que el usuario envia el formulario
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            /** Crea una nueva instancia */
             $propiedad = new Propiedad($_POST['propiedad']);
 
-            // Generar un nombre único
-            $nombreImagen = md5( uniqid( rand(), true ) ) . ".jpg";
+            $archivoImagen = $_FILES['propiedad'] ?? [];
+            $imagenSubida = $archivoImagen['tmp_name']['imagen'] ?? '';
+            $nombreImagen = self::generarNombreImagen([
+                'name' => $archivoImagen['name']['imagen'] ?? ''
+            ]);
 
-
-            // Setear la imagen
-            // Realiza un resize a la imagen con intervention
-            if($_FILES['propiedad']['tmp_name']['imagen']) {
-                $image = Image::make($_FILES['propiedad']['tmp_name']['imagen'])->fit(800,600);
+            if($imagenSubida) {
                 $propiedad->setImagen($nombreImagen);
             }
 
-            // Validar
             $errores = $propiedad->validar();
-            if(empty($errores)) {
 
-                // Crear la carpeta para subir imagenes
-                if(!is_dir(CARPETA_IMAGENES)) {
-                    mkdir(CARPETA_IMAGENES);
+            if(empty($errores)) {
+                if($imagenSubida) {
+                    self::guardarImagenSubida([
+                        'tmp_name' => $imagenSubida,
+                        'name' => $archivoImagen['name']['imagen'] ?? ''
+                    ], $nombreImagen);
                 }
 
-                // Guarda la imagen en el servidor
-                $image->save(CARPETA_IMAGENES . $nombreImagen);
-
-                // Guarda en la base de datos
                 $resultado = $propiedad->guardar();
 
                 if($resultado) {
@@ -77,52 +102,41 @@ class PropiedadController  {
     public static function actualizar(Router $router) {
 
         $id = validarORedireccionar('/propiedades');
-
-        // Obtener los datos de la propiedad
         $propiedad = Propiedad::find($id);
-
-        // Consultar para obtener los vendedores
         $vendedores = Vendedor::all();
-
-        // Arreglo con mensajes de errores
         $errores = Propiedad::getErrores();
 
-        
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-                // Asignar los atributos
-                $args = $_POST['propiedad'];
+            $args = $_POST['propiedad'];
+            $propiedad->sincronizar($args);
 
-                $propiedad->sincronizar($args);
+            $archivoImagen = $_FILES['propiedad'] ?? [];
+            $imagenSubida = $archivoImagen['tmp_name']['imagen'] ?? '';
+            $nombreImagen = self::generarNombreImagen([
+                'name' => $archivoImagen['name']['imagen'] ?? ''
+            ]);
 
-                // Validación
-                $errores = $propiedad->validar();
+            if($imagenSubida) {
+                $propiedad->setImagen($nombreImagen);
+            }
 
-                // Subida de archivos
-                // Generar un nombre único
-                $nombreImagen = md5( uniqid( rand(), true ) ) . ".jpg";
+            $errores = $propiedad->validar();
 
-                if($_FILES['propiedad']['tmp_name']['imagen']) {
-                    $image = Image::make($_FILES['propiedad']['tmp_name']['imagen'])->fit(800,600);
-                    $propiedad->setImagen($nombreImagen);
+            if(empty($errores)) {
+                if($imagenSubida) {
+                    self::guardarImagenSubida([
+                        'tmp_name' => $imagenSubida,
+                        'name' => $archivoImagen['name']['imagen'] ?? ''
+                    ], $nombreImagen);
                 }
 
+                $resultado = $propiedad->guardar();
 
-                
-                if(empty($errores)) {
-                    // Almacenar la imagen
-                    if($_FILES['propiedad']['tmp_name']['imagen']) {
-                        $image->save(CARPETA_IMAGENES . $nombreImagen);
-                    }
-
-                    // Guarda en la base de datos
-                    $resultado = $propiedad->guardar();
-
-                    if($resultado) {
-                        header('location: /propiedades');
-                    }
+                if($resultado) {
+                    header('location: /propiedades');
                 }
-
+            }
         }
 
         $router->render('propiedades/actualizar', [
@@ -137,22 +151,17 @@ class PropiedadController  {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tipo = $_POST['tipo'];
 
-            // peticiones validas
             if(validarTipoContenido($tipo) ) {
-                // Leer el id
                 $id = $_POST['id'];
                 $id = filter_var($id, FILTER_VALIDATE_INT);
-    
-                // encontrar y eliminar la propiedad
+
                 $propiedad = Propiedad::find($id);
                 $resultado = $propiedad->eliminar();
 
-                // Redireccionar
                 if($resultado) {
                     header('location: /propiedades');
                 }
             }
         }
     }
-
 }

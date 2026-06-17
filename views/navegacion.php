@@ -1,3 +1,6 @@
-
-<a href="propiedades/crear" class="boton boton-verde">Nueva Propiedad</a>
-<a href="vendedores/crear" class="boton boton-amarillo">Nuevo Vendedor</a>
+<nav class="admin-menu">
+    <a href="/admin" class="active">Dashboard</a>
+    <a href="/propiedades/crear">Nueva Propiedad</a>
+    <a href="/vendedores/crear">Nuevo Vendedor</a>
+    <a href="/">Ver sitio</a>
+</nav>

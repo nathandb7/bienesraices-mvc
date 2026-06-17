@@ -1,19 +1,66 @@
-# Proyecto de Bienes Raíces
+# Proyecto de Bienes Raices
 
-Este repositorio contiene el código fuente de un proyecto de bienes raíces desarrollado con HTML, SASS, Gulp, PHP, y MySQL, utilizando el patrón de diseño MVC (Modelo-Vista-Controlador).
+Proyecto web inmobiliario desarrollado con PHP, HTML, JavaScript, Sass, Gulp y MySQL, utilizando arquitectura MVC.
 
-## Descripción del Proyecto
+Inicialmente fue hecho como parte del curso [Desarrollo Web Completo con HTML5, CSS3, JS, PHP y MySQL](https://www.udemy.com/course/desarrollo-web-completo-con-html5-css3-js-php-y-mysql/?couponCode=MT260615G). Luego fue redisenado, personalizado y modernizado por **Nathan de Barros**.
 
-El objetivo de este proyecto es crear una plataforma web para la gestión y visualización de bienes raíces. La aplicación permite a los usuarios buscar, listar y obtener información detallada sobre propiedades inmobiliarias, así como realizar consultas y contactar a los agentes inmobiliarios.
+## Descripcion del Proyecto
 
-## Tecnologías Utilizadas
+El objetivo de este proyecto es ofrecer una plataforma para la gestion y visualizacion de propiedades inmobiliarias. La aplicacion permite listar propiedades, ver informacion detallada, contactar por consultas y administrar propiedades y vendedores desde un panel privado.
 
-- **HTML**: Utilizado para la estructura de las páginas web.
-- **SASS**: Preprocesador de CSS que facilita la organización y mantenimiento del estilo.
-- **Gulp**: Herramienta para automatizar tareas como la compilación de SASS y la optimización de imágenes.
-- **PHP**: Lenguaje de programación del lado del servidor para la implementación de la lógica de negocio.
-- **MySQL**: Sistema de gestión de bases de datos para almacenar y recuperar información.
-- **MVC (Modelo-Vista-Controlador)**: Patrón de diseño que divide la aplicación en tres componentes principales para facilitar la escalabilidad y el mantenimiento.
+## Tecnologias Utilizadas
+
+- **HTML**: estructura de las paginas web.
+- **Sass**: organizacion y mantenimiento de estilos.
+- **JavaScript**: interacciones visuales, menu responsive, modo oscuro y animaciones.
+- **Gulp**: automatizacion de compilacion de assets.
+- **PHP**: logica del lado del servidor.
+- **MySQL**: almacenamiento y consulta de informacion.
+- **MVC**: separacion de responsabilidades entre modelos, vistas y controladores.
+
+## Rediseño
+
+El rediseño actual incorpora una interfaz publica con estetica inmobiliaria premium y un panel administrativo moderno tipo dashboard, manteniendo la logica base del proyecto original.
+
+## Instalacion Inicial
+
+1. Instalar dependencias PHP:
+
+```bash
+composer install
+```
+
+2. Crear el archivo de entorno:
+
+```bash
+cp includes/.env.example includes/.env
+```
+
+En Windows tambien puedes copiar `includes/.env.example` manualmente como `includes/.env`.
+
+3. Importar la base de datos inicial:
+
+```bash
+mysql -u root -p < database/bienesraices.sql
+```
+
+4. Revisar que `includes/.env` tenga los datos correctos de tu MySQL:
+
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=bienesraices_crud
+```
+
+## Acceso al Panel
+
+Usuario inicial:
+
+- Email: `admin@bienesraices.test`
+- Password: `admin123`
+
+Por seguridad, cambia esta clave despues de levantar el proyecto.
 
 ## Capturas del Proyecto
 
@@ -21,11 +68,10 @@ El objetivo de este proyecto es crear una plataforma web para la gestión y visu
 
 ![modo dark](capturas/captura-2.png)
 
-![alt text](capturas/captura-3.png)
+![captura 3](capturas/captura-3.png)
 
-![alt text](capturas/captura-4.png)
+![captura 4](capturas/captura-4.png)
 
-![alt text](capturas/captura-5.png)
+![captura 5](capturas/captura-5.png)
 
-![alt text](capturas/captura-6.png)
-
+![captura 6](capturas/captura-6.png)
